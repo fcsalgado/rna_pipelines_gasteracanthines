@@ -42,6 +42,29 @@ do
 perl /opt/ohpc/pub/apps/rcorrector/run_rcorrector.pl -t 12 -1 \
 /home/fabianc.salgado/shared/paula_torres/gasteracantha/secuencias/PTUR00$i.left.fq \
 -2 /home/fabianc.salgado/shared/paula_torres/gasteracantha/secuencias/PTUR00$i.right.fq
+
+###########alternative based on other names###############
+
+# in some cases companies run samples in m ultiple lanes, with long IDs, in this case you can create a list of files with following command replacing the regular expression depending oin the situation
+
+ls *.gz | sed -E "s/\_\R[1,2]\.\w+\.\w+$//g" | sort | uniq > list_names.txt
+
+# then the above loop would change for
+
+#!/bin/bash
+
+#SBATCH -p normal
+#SBATCH -N 1
+#SBATCH -n 12
+#SBATCH -t 20-12:30:30
+#SBATCH -o corrector.out
+#SBATCH -e error_corrector.err
+
+module load Rcorrector/1.0.6
+
+for ind in $(cat list_names.txt)
+do
+rcorrector -t 12 -1 /data/gpfs/projects/punim1528/a_minax/reads/$ind_R1.fastq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/$ind_R2.fastq.gz
 ```
 
 Los archivos fastq de salida incluirán "cor" en sus nombres. Las lecturas corregidas tendrán un sufijo "cor" en sus etiquetas:
