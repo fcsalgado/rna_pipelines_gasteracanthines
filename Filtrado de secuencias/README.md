@@ -62,9 +62,9 @@ ls *.gz | sed -E "s/\_\R[1,2]\.\w+\.\w+$//g" | sort | uniq > list_names.txt
 
 module load Rcorrector/1.0.6
 
-for ind in $(cat list_names.txt)
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind;
 do
-rcorrector -t 12 -1 /data/gpfs/projects/punim1528/a_minax/reads/$ind_R1.fastq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/$ind_R2.fastq.gz
+rcorrector -t 1 -p /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R1.fastq.gz /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R2.fastq.gz -od /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads; done
 ```
 
 Los archivos fastq de salida incluirán "cor" en sus nombres. Las lecturas corregidas tendrán un sufijo "cor" en sus etiquetas:
