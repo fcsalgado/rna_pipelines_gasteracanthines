@@ -52,19 +52,24 @@ ls *.gz | sed -E "s/\_\R[1,2]\.\w+\.\w+$//g" | sort | uniq > list_names.txt
 # then the above loop would change for
 
 #!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 10 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o rcorrector.out # Salida STDOUT
+#SBATCH -e rcorrector.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
 
-#SBATCH -p normal
-#SBATCH -N 1
-#SBATCH -n 12
-#SBATCH -t 20-12:30:30
-#SBATCH -o corrector.out
-#SBATCH -e error_corrector.err
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
 
-module load Rcorrector/1.0.6
+module load Anaconda3/2023.07-2
+source activate /home/fsalgadoroa/.conda/envs/rcorrector
+#mkdir /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads
 
 cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind;
 do
-rcorrector -t 1 -p /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R1.fastq.gz /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R2.fastq.gz -od /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads; done
+/data/gpfs/projects/punim1528/a_minax/scripts/rcorrector/run_rcorrector.pl -t 10 -1 /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R1.fastq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R2.fastq.gz -od /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads; done
 ```
 
 Los archivos fastq de salida incluirán "cor" en sus nombres. Las lecturas corregidas tendrán un sufijo "cor" en sus etiquetas:
