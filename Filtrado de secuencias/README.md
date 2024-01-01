@@ -95,6 +95,28 @@ python /opt/ohpc/pub/apps/TranscriptomeAssemblyTools/FilterUncorrectabledPEfastq
 -1 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.left.cor.fq \
 -2 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.right.cor.fq -s PTUR00$i
 done
+
+### version with list of files
+
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 1 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o rcorrector.out # Salida STDOUT
+#SBATCH -e rcorrector.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Anaconda3/2023.07-2
+source activate /home/fsalgadoroa/.conda/envs/rcorrector
+#mkdir /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads
+
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
+python /data/gpfs/projects/punim1528/a_minax/scripts/TranscriptomeAssemblyTools/utilities/FilterUncorrectabledPEfastq.py -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/"$ind"_R1.cor.fq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/"$ind"_R2.cor.fq.gz -s "$ind"; done
+
 ```
 
 ## Quitamos adaptadores
