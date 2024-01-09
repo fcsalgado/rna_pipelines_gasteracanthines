@@ -131,6 +131,26 @@ do
  --stringency 1 -e 0.1 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.left.cor.fq \
    /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.right.cor.fq 
 done
+
+# list file version
+
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o trim.out # Salida STDOUT
+#SBATCH -e trim.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load cutadapt/4.2
+module load FastQC/0.12.1-Java-11
+
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
+/data/gpfs/projects/punim1528/a_minax/scripts/TrimGalore-0.6.10/trim_galore --cores 2 --paired --retain_unpaired --phred33 --output_dir /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads --length 36 -q 5 --stringency 1 -e 0.1 --fastqc /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/filtered_uncorrectable/unfixrm_"$ind"_R1.cor.fq.gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/filtered_uncorrectable/unfixrm_"$ind"_R2.cor.fq.gz; done
 ```
 
 ## Removemos secuencias sobre-representadas 
