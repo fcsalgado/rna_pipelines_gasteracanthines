@@ -152,6 +152,52 @@ module load FastQC/0.12.1-Java-11
 cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
 /data/gpfs/projects/punim1528/a_minax/scripts/TrimGalore-0.6.10/trim_galore --cores 2 --paired --retain_unpaired --phred33 --output_dir /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads --length 36 -q 5 --stringency 1 -e 0.1 --fastqc /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/filtered_uncorrectable/unfixrm_"$ind"_R1.cor.fq.gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/filtered_uncorrectable/unfixrm_"$ind"_R2.cor.fq.gz; done
 ```
+## Mapping against SILVA database to remove contamination 
+
+```
+# Download SILVA (https://www.arb-silva.de) sequences 
+
+wget https://www.arb-silva.de/fileadmin/silva_databases/release_138_1/Exports/SILVA_138.1_LSUParc_tax_silva.fasta.gz
+wget https://www.arb-silva.de/fileadmin/silva_databases/release_138_1/Exports/SILVA_138.1_SSUParc_tax_silva.fasta.gz
+
+# unzip and concatenate 
+
+gzip -d *.gz
+
+cat *.fasta > silva.db
+
+rm *.fasta
+
+#remplace U for T because we are working with cDNA sequences
+
+sed -i 's/U/T/g' silva.db
+
+#use bowtie to map agains silva and keep those sequences that are not in the database (unpaired) 
+
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o trim.out # Salida STDOUT
+#SBATCH -e trim.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Bowtie2/2.4.5
+
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
+bowtie2 --quiet --very-sensitive-local \
+--phred33  -x /data/gpfs/projects/punim1528/a_minax/silva_db/silva.db -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R1.cor_val_1.fq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R2.cor_val_2.fq.gz --threads 6 \
+--met-file "$ind"_bowtie2_metrics.txt \
+--al-conc-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_aligned.fq.gz \
+--un-conc-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_unaligned.fq.gz  \
+--al-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_unpaired_aligned.fq.gz \
+--un-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_unpaired_unaligned.fq.gz;
+done
+```
 
 ## Removemos secuencias sobre-representadas 
 
