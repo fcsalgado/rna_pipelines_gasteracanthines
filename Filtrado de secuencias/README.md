@@ -172,6 +172,10 @@ rm *.fasta
 
 sed -i 's/U/T/g' silva.db
 
+# index the fasta file to be used in bowtie
+
+bowtie2-build /data/gpfs/projects/punim1528/a_minax/silva_db/silva.db /data/gpfs/projects/punim1528/a_minax/silva_db/SILVA
+
 #use bowtie to map agains silva and keep those sequences that are not in the database (unpaired) 
 
 #!/bin/bash
@@ -190,7 +194,7 @@ module load Bowtie2/2.4.5
 
 cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
 bowtie2 --quiet --very-sensitive-local \
---phred33  -x /data/gpfs/projects/punim1528/a_minax/silva_db/silva.db -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R1.cor_val_1.fq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R2.cor_val_2.fq.gz --threads 6 \
+--phred33  -x /data/gpfs/projects/punim1528/a_minax/silva_db/SILVA -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R1.cor_val_1.fq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/trimmed_reads/unfixrm_"$ind"_R2.cor_val_2.fq.gz --threads 6 \
 --met-file "$ind"_bowtie2_metrics.txt \
 --al-conc-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_aligned.fq.gz \
 --un-conc-gz /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_unaligned.fq.gz  \
