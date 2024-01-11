@@ -191,5 +191,13 @@ python /data/gpfs/projects/punim1528/a_minax/scripts/TranscriptomeAssemblyTools/
 -fqr /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/fastqc/"$ind"_blacklist_paired_unaligned.fq.2_fastqc.txt;
 done
 ```
+Finally, let's compress the output and run fastqc again to check the quality of the clean reads
 
-
+```
+for file in *.1 *.2; do
+    nom=$(echo "$file" | sed "s/rmoverrep_//g" | sed "s/_blacklist_paired_unaligned//g")
+    gzip -c "$file" > "$nom".gz
+    rm -rf "$file"
+    fastqc "$nom".gz;
+done
+```
