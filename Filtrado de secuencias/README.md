@@ -172,7 +172,7 @@ rm *.fasta
 
 sed -i 's/U/T/g' silva.db
 
-# index the fasta file to be used in bowtie
+# index the fasta file to be used in bowtie, this can take ages to run and it can be really heavy. Use multiple processors
 
 bowtie2-build /data/gpfs/projects/punim1528/a_minax/silva_db/silva.db /data/gpfs/projects/punim1528/a_minax/silva_db/SILVA
 
