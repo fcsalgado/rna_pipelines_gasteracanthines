@@ -1,10 +1,9 @@
-# Filtrado de secuencias 
+# Sequence Filtering
 
-Inicialmente es necesario filtrar los reads porque pueden tener adaptadores y demás, el protocolo 
-de filtrado utilizado en este caso se basa en uno publicado por Harvard que se encuentra [aqui](https://informatics.fas.harvard.edu/best-practices-for-de-novo-transcriptome-assembly-with-trinity.html).
+Initially, it is necessary to filter the reads as they may contain adapters and other artifacts. The filtering protocol used in this case is based on one published by Harvard, which can be found [aqui](https://github.com/harvardinformatics/TranscriptomeAssemblyTools).
 
-## Examinar calidad de las secuencias (FastQC)
-Lo primero que se hace con los reads crudos es correr FastQC para verificar la calidad de las secuencias, en el cluster se corre así:
+## Examining Sequence Quality (FastQC)
+The first step with raw reads is to run FastQC to assess the quality of the sequences. On the cluster, it is executed as follows:
 
 ```
 
@@ -15,41 +14,14 @@ fastqc /home/reads/*.gz
 
 Luego de analizar la calidad de las lecturas procedemos a filtrar las secuencias.
 
-## Remover los k-mers erróneos
+## Remove Erroneous k-mers
 
-Debido a que los ensambladores de transcriptomas de última generación utilizan construyen el ensamblaje con un enfoque de grafos a partir de k-mers, los k-mers erróneos pueden afectar negativamente a los ensamblajes, se recomienda quitarlos. 
-Para quitarlos utilizamos [rCorrector](https://github.com/mourisl/Rcorrector), una herramienta diseñada específicamente para datos de RNA-seq. 
-Además de tener un rendimiento superior en comparaciones en paralelo de herramientas de corrección de errores de lectura basadas en kmer, 
-incluye etiquetas en la salida fastq que indican si la lectura se ha corregido o si se ha detectado que contiene un error, pero no se puede corregir.
-
-Creamos un directorio para correr rCorrector, en este caso como las secuencias tienen un código de números, lo más eficiente es correrlo 
-con un ciclo for de 1 a 9 donde los nombres de las secuencias son van del PTUR001 al PTUR009.
+Since state-of-the-art transcriptome assemblers build assemblies using a graph-based approach from k-mers, erroneous k-mers can negatively impact the assemblies. It is recommended to remove them. For this purpose, we use [rCorrector](https://github.com/mourisl/Rcorrector), a tool specifically designed for RNA-seq data. In addition to demonstrating superior performance in parallel comparisons with other kmer-based read error correction tools, it includes labels in the fastq output indicating whether the read has been corrected or if an error has been detected but cannot be corrected.
 
 ```
-#!/bin/bash
-
-#SBATCH -p normal
-#SBATCH -N 1
-#SBATCH -n 12
-#SBATCH -t 20-12:30:30
-#SBATCH -o corrector.out
-#SBATCH -e error_corrector.err
-
-module load perl
-
-for i in $(seq 1 9)
-do
-perl /opt/ohpc/pub/apps/rcorrector/run_rcorrector.pl -t 12 -1 \
-/home/fabianc.salgado/shared/paula_torres/gasteracantha/secuencias/PTUR00$i.left.fq \
--2 /home/fabianc.salgado/shared/paula_torres/gasteracantha/secuencias/PTUR00$i.right.fq
-
-###########alternative based on other names###############
-
-# in some cases companies run samples in m ultiple lanes, with long IDs, in this case you can create a list of files with following command replacing the regular expression depending oin the situation
+# in some cases companies run samples in m ultiple lanes, with long IDs, in this case you can create a list of files with following command replacing the regular expression depending on the situation
 
 ls *.gz | sed -E "s/\_\R[1,2]\.\w+\.\w+$//g" | sort | uniq > list_names.txt
-
-# then the above loop would change for
 
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
@@ -72,7 +44,7 @@ do
 /data/gpfs/projects/punim1528/a_minax/scripts/rcorrector/run_rcorrector.pl -t 10 -1 /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R1.fastq.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/"$ind"_R2.fastq.gz -od /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads; done
 ```
 
-Los archivos fastq de salida incluirán "cor" en sus nombres. Las lecturas corregidas tendrán un sufijo "cor" en sus etiquetas:
+The output fastq files will include "cor" in their names. The corrected reads will have a "cor" suffix in their labels.
 
 ```
 @ERR1101637.57624042/1 l:165 m:203 h:218 cor
@@ -80,24 +52,11 @@ GTACAACCCTTCCAACCTCCACCGTCTTATATACGAAGCGCCTTGAGTGTGTGTGTGCATGAGCCAAAGGGAATACCG
 +
 <@@D=D2ACDAHB?:<8EGE;B;FE<?;??DBDD))0)8@GDF@C)))5-;5CAE=..7;@DEEC@C;A9?BB=@>@B
 ```
-Los valores l y h en los encabezados de lectura indican los recuentos de kmer , para los kmers de frecuencia más baja, 
-mediana y más alta que ocurren en la lectura. También van a aparacer unas lecturas que no se pueden corregir.
+The values l and h in the read headers indicate the counts of k-mers for the lowest, median, and highest frequency k-mers that occur in the read. There will also be some reads that cannot be corrected.
 
-Estas lecturas que no se pueden corregir a menudo están plagadas de N o representan otras secuencias de baja complejidad. 
-Hay un script en Python para realizar esta tarea. También elimina la etiqueta "cor" de los encabezados de las secuencias corregidas, ya que pueden causar problemas a las herramientas posteriores:
+These uncorrectable reads often contain Ns or represent other low-complexity sequences. There is a Python script to perform this task. It also removes the "cor" label from the headers of corrected sequences, as it may cause issues for downstream tools:
 
 ```
-module load python
-
-for i in $(seq 1 9)
-do
-python /opt/ohpc/pub/apps/TranscriptomeAssemblyTools/FilterUncorrectabledPEfastq.py \ 
--1 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.left.cor.fq \
--2 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.right.cor.fq -s PTUR00$i
-done
-
-### version with list of files
-
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
 #SBATCH -n 1 # Número de núcleos
@@ -119,21 +78,9 @@ python /data/gpfs/projects/punim1528/a_minax/scripts/TranscriptomeAssemblyTools/
 
 ```
 
-## Quitamos adaptadores
+## Remove sequence adaptors
 
 ```
-module load python3.6
-
-for i in $(seq 1 9)
-do
-/home/fabianc.salgado/shared/paula_torres/gasteracantha/TrimGalore-0.6.0/trim_galore \
- --paired --retain_unpaired --phred33 --output_dir trimmed_reads_PTUR00$i --length 36 -q 5 \
- --stringency 1 -e 0.1 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.left.cor.fq \
-   /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/rcorrector/PTUR00$i.right.cor.fq 
-done
-
-# list file version
-
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
 #SBATCH -n 2 # Número de núcleos
@@ -203,7 +150,9 @@ bowtie2 --quiet --very-sensitive-local \
 done
 ```
 
-## Removemos secuencias sobre-representadas 
+## Remove over-represented reads
+
+
 
 ```
 module load python
@@ -218,4 +167,4 @@ python /opt/ohpc/pub/apps/TranscriptomeAssemblyTools/RemoveFastqcOverrepSequence
 done
 ```
 
-Volvemos a correr fastQc
+
