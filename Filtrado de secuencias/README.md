@@ -150,9 +150,25 @@ bowtie2 --quiet --very-sensitive-local \
 done
 ```
 
+We are interested in those sequences with the suffix 'blacklist_paired_unaligned.fq.gz' because they did not align with the database, indicating that these reads are free of contamination
+
 ## Remove over-represented reads
 
+1. Run Fastqc with the sequence with the suffix 'blacklist_paired_unaligned.fq.gz'
 
+2. Let's extract the data we are intersted in from this Fastqc run
+
+```
+mkdir /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/fastqc
+
+for file in $(ls -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/*.gz | xargs -n 1 basename); do
+
+pp=$(echo "$file" | sed "s/.gz//g") 
+
+unzip -p /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$pp"_fastqc.zip "$pp"_fastqc/fastqc_data.txt > /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/fastqc/"$pp"_fastqc.txt; done
+```
+
+3. Now let's run the script _RemoveFastqcOverrepSequenceReads.py_ to remove the over-represented reads
 
 ```
 module load python
