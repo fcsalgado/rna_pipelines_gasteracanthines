@@ -171,15 +171,24 @@ unzip -p /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"
 3. Now let's run the script _RemoveFastqcOverrepSequenceReads.py_ to remove the over-represented reads
 
 ```
-module load python
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o trim.out # Salida STDOUT
+#SBATCH -e trim.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
 
-for i in $(seq 1 9)
-do
-python /opt/ohpc/pub/apps/TranscriptomeAssemblyTools/RemoveFastqcOverrepSequenceReads.py \
--1 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/silva/reads_assembly/blacklist_paired_unaligned_PTUR00$i.fq.1.gz \
--2 /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/silva/reads_assembly/blacklist_paired_unaligned_PTUR00$i.fq.2.gz \
--fql /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/fastqc/fastqc_files/PTUR00"$i"_fastqc_data_1.txt \
--fqr /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/fastqc/fastqc_files/PTUR00"$i"_fastqc_data_2.txt
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
+python /data/gpfs/projects/punim1528/a_minax/scripts/TranscriptomeAssemblyTools/utilities/RemoveFastqcOverrepSequenceReads.py \
+-1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_unaligned.fq.1.gz \
+-2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/"$ind"_blacklist_paired_unaligned.fq.2.gz \
+-fql /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/fastqc/"$ind"_blacklist_paired_unaligned.fq.1_fastqc.txt \
+-fqr /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/silva_pair/fastqc/"$ind"_blacklist_paired_unaligned.fq.2_fastqc.txt;
 done
 ```
 
