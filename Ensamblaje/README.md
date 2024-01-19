@@ -1,21 +1,30 @@
 
-# Ensamblaje 
+# Transcriptome Assembly
 
-El ensamblaje se corre con Trinity:
+We will use trinity to assemble the transcriptome
 
 ```
-module load conda
-source activate /home/fabianc.salgado/data/POCtrinity
-module load perl/5.32.0
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 20 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o trinity.out # Salida STDOUT
+#SBATCH -e trinity.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
 
-/datacnmat01/biologia/biologia.evolutiva/fabianc.salgado/POCtrinity/opt/trinity-2.9.1/Trinity \
- --seqType fq --SS_lib_type RF --max_memory 225G --CPU 32 --min_contig_length 2000 \ 
- --left /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/remove_overrep/*.left.fa \ 
- --right /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/remove_overrep/*.right.fa \
- --output /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Trinity/2.15.1 #trinityis super picky with the dependencies. Keep that in mind
+module load Salmon/1.5.2
+
+Trinity --seqType fq --SS_lib_type RF --max_memory 50G --CPU 20 --min_contig_length 2000 --left /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/*.1.gz  --right /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/*.2.gz --output /data/scratch/projects/punim1528/trinity_output --full_cleanup
 ```
 
-## Calculo de estadísticas del ensamblaje
+# Transcriptome Assembly Quality Assessment
+
+This is really important, especially because we do not have a reference. We will follow all the steps recommended [here](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Assembly-Quality-Assessment). 
 
 ```
 module load conda
