@@ -39,6 +39,13 @@ source activate /home/fabianc.salgado/data/POCtrinity
 /datacnmat01/biologia/biologia.evolutiva/fabianc.salgado/POCtrinity/opt/trinity-2.9.1/util/TrinityStats.pl /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000/Trinity_2000.fasta
 ```
 
+## Reads representation in the assembly
+
+Ideally, your transcriptome assembly should encompass approximately 80% or more of the input RNA-Seq reads. The unassembled reads that remain are likely associated with transcripts that are expressed at low levels, lacking adequate coverage for assembly, or are of poor quality and abnormal
+
+```
+
+```
 
 
 
