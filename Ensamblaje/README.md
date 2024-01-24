@@ -44,9 +44,30 @@ source activate /home/fabianc.salgado/data/POCtrinity
 Ideally, your transcriptome assembly should encompass approximately 80% or more of the input RNA-Seq reads. The unassembled reads that remain are likely associated with transcripts that are expressed at low levels, lacking adequate coverage for assembly, or are of poor quality and abnormal
 
 ```
+#!/bin/sh
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o abundance.out # Salida STDOUT
+#SBATCH -e abundance.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
 
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Bowtie2/2.4.5
+module load SAMtools/1.16.1
+
+#build bowtie database
+#bowtie2-build /data/scratch/projects/punim1528/trinity_output.Trinity.fasta /data/scratch/projects/punim1528/trinity_output/tt.fna
+
+#map reads to database
+cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
+bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/trinity_output/tt.fna -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/"$ind".fq.1.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/"$ind".fq.2.gz 2> align_stats_"$ind".txt | samtools view -@10 -Sb -o bowtie2.bam; done
 ```
 
+Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 
 
 ## Corremos BUSCO
