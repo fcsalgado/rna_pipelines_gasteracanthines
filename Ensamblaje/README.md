@@ -106,7 +106,7 @@ Remove redundant transcripts with [CD-HIT](https://sites.google.com/view/cd-hit)
 ```
 module load CD-HIT/4.8.1
 
-cd-hit-est -i /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000/Trinity_2000.fasta -o trinity_cdhit_2000 -c 0.95 -M 32000 -T 16
+cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.fasta -o /data/scratch/projects/punim1528/trinity_cdhit_aminax -c 0.95 -M 32000 -T 16
 ```
 
 ## Quitamos elementos repetitivos
