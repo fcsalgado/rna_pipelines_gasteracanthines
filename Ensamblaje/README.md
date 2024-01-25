@@ -109,6 +109,9 @@ module load CD-HIT/4.8.1
 cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.fasta -o /data/scratch/projects/punim1528/trinity_cdhit_aminax -c 0.95 -M 32000 -T 16
 ```
 
+**After this repeat the BUSCO analyses to check if the matching improves**
+
+
 ## Quitamos elementos repetitivos
 
 RepeatModeler:
