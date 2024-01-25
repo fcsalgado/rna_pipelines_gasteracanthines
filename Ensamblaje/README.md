@@ -112,7 +112,10 @@ cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trini
 **After this repeat the BUSCO analyses to check if the matching improves**
 
 
-## Quitamos elementos repetitivos
+
+
+
+## Quitamos elementos repetitivos (Discuss about this!)
 
 RepeatModeler:
 
