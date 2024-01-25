@@ -70,13 +70,31 @@ bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/trinity_out
 Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 
 
-## Corremos BUSCO
+## Run BUSCO
+
+This command is evaluating the completeness of a transcriptome assembly (in FASTA format) using BUSCO. It utilizes the arachnid lineage dataset (arachnida_odb10) and runs in transcriptome mode with parallel processing on 10 CPU cores. The results will be stored in the specified output directory
 ```
 module load python3.6/3.6.6
 python3 /home/fabianc.salgado/shared/paula_torres/gasteracantha/busco/busco/bin/busco \
 --config /home/fabianc.salgado/shared/paula_torres/gasteracantha/busco/busco/config/config.ini \
 --in /home/fabianc.salgado/shared/paula_torres/gasteracantha/cdhit/trinity_cdhit_2000.fasta -o gasteracantha_2000_busco_out \
 -l arachnida_odb10 -m tran -c 10 -f
+
+#!/bin/sh
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 10 # Número de núcleos
+#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)       
+#SBATCH -o busco.out # Salida STDOUT
+#SBATCH -e busco.err # Salida STDERR
+# mail alert at start, end and abortion of execution  
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load BUSCO/5.4.5
+busco --in /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.fasta -o /data/scratch/projects/punim1528/busco/austracantha_busco_out -l arachnida_odb10 -m tran -c 10 -f
+
 ```
 
 ## CDHIT
