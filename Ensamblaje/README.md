@@ -97,14 +97,16 @@ busco --in /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.
 
 ```
 
+Most of your assembly (>80%) needs to match the database. There is highly probable that you end up with a high number duplicates, this may be becuase "For instance, a high level of duplication may be explained by a recent whole duplication event (biological) or a chimeric assembly of haplotypes (technical)". Let's discard the technical part, removing the redundant transcripts
+
 ## CDHIT
 
-Corremos Cdhit para remover transcritos redundantes:
+Remove redundant transcripts with [CD-HIT](https://sites.google.com/view/cd-hit)
 
 ```
-/datacnmat01/biologia/biologia.evolutiva/shared/cdhit/cd-hit-est  \
--i /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000/Trinity_2000.fasta \
--o trinity_cdhit_2000 -c 0.95 -M 32000 -T 16
+module load CD-HIT/4.8.1
+
+cd-hit-est -i /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000/Trinity_2000.fasta -o trinity_cdhit_2000 -c 0.95 -M 32000 -T 16
 ```
 
 ## Quitamos elementos repetitivos
