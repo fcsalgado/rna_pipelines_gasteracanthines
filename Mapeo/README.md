@@ -21,7 +21,7 @@ done
 
 Because our experimental design consisted in multiple biological replicates, we need to create a file with this information. In our case the last part of the name of the individuals `"B\w{1}$"` has information about the morph. let's create the file samples.txt followwing the format `cond_A    cond_A_rep1    A_rep1_left.fq    A_rep1_right.fq` for the black morph
 
-```
+```bash
 # Count the number of lines matching the pattern 'B\w{1}$' in the directory listing.
 linesw=$(ls /data/scratch/projects/punim1528/cat_ind_reads | sed -E "s/\.\w{1}.gz//g" | sort | uniq | grep -E "B\w{1}$" | wc -l)
 
