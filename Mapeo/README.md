@@ -2,7 +2,7 @@
 
 In case you get reads from multiple sequencing lanes you have to consolidate them in a single file per individual
 
-```
+```bash
 # Create a directory to store concatenated individual reads.
 mkdir /data/scratch/projects/punim1528/cat_ind_reads
 
