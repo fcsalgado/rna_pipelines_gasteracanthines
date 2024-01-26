@@ -19,7 +19,28 @@ for ind in $(cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | gr
 done
 ```
 
-Because our experimental design consisted in multiple biological replicates, we need to create a file with this information. In our case
+Because our experimental design consisted in multiple biological replicates, we need to create a file with this information. In our case the last part of the name of the individuals `"B\w{1}$"` has information about the morph. let's create the file samples.txt followwing the format `cond_A    cond_A_rep1    A_rep1_left.fq    A_rep1_right.fq` for the black morph
+
+```
+# Count the number of lines matching the pattern 'B\w{1}$' in the directory listing.
+linesw=$(ls /data/scratch/projects/punim1528/cat_ind_reads | sed -E "s/\.\w{1}.gz//g" | sort | uniq | grep -E "B\w{1}$" | wc -l)
+
+# Iterate over a sequence of numbers from 1 to the number of lines counted.
+for s in $(seq 1 $linesw); do 
+
+    # Extract a specific line that matches the pattern 'B\w{1}$' from the directory listing.
+    ind=$(ls /data/scratch/projects/punim1528/cat_ind_reads | sed -E "s/\.\w{1}.gz//g" | sort | uniq | grep -E "B\w{1}$" | awk -v s="$s" 'NR==s')
+
+    # Define the variable 'morph' as "black".
+    morph="black"
+
+    # Append formatted output to the file 'samples.txt', including values of 'morph', 's', 'ind.1.gz', and 'ind.2.gz'.
+    echo -e "$morph\t${morph}_$s\t$ind.1.gz\t$ind.2.gz\n" >> samples.txt;
+
+done
+```
+
+Repeat the same woth the white morph
 
 Mapeamos las lecturas a la referencia:
 
