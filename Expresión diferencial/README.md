@@ -1,4 +1,14 @@
-# Análisis de expresión diferencial
+# Differential expression analyses
+
+Create a file with the experimental design a names of the files: 
+
+```bash
+linesw=$(ls /data/scratch/projects/punim1528/cat_ind_reads | sed -E "s/\.\w{1}.gz//g" | sort | uniq | grep -E "B\w{1}$" | wc -l)
+for s in $(seq 1 $linesw); do  ind=$(ls /data/scratch/projects/punim1528/cat_ind_reads | sed -E "s/\.\w{1}.gz//g" | sort | uniq | grep -E "B\w{1}$" | awk -v s="$s" 'NR==s'); morph="black"; echo -e "$morph\t${morph}_$s\t$ind.1.gz\t$ind.2.gz\n" >> samples.txt;done
+```
+
+
+
 
 ## Creamos la matriz
 
