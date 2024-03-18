@@ -97,7 +97,7 @@ busco --in /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.
 
 ```
 
-Most of your assembly (>80%) needs to match the database. There is highly probable that you end up with a high number duplicates, this may be becuase "For instance, a high level of duplication may be explained by a recent whole duplication event (biological) or a chimeric assembly of haplotypes (technical)". Let's discard the technical part, removing the redundant transcripts
+Most of your assembly (>80%) needs to match the database. There is a high probability that you ended up with a high number of duplicates. This may be because, for instance, a high level of duplication may be explained by a recent whole duplication event (biological) or a chimeric assembly of haplotypes. Let's discard the technical part and remove the redundant transcripts.
 
 ## CDHIT
 
