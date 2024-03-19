@@ -40,22 +40,32 @@ for s in $(seq 1 $linesw); do
 done
 ```
 
-Repeat the same woth the white morph
-
-Mapeamos las lecturas a la referencia:
+Let's map the reads to the the tracscritome using Salmon
 
 ```
-module load conda
-source activate /home/fabianc.salgado/data/POCtrinity
-module load perl
-module load rsem
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)       
+#SBATCH -o abundance.out # Salida STDOUT
+#SBATCH -e abundance.err # Salida STDERR
+# mail alert at start, end and abortion of execution  
+#SBATCH --mail-type=ALL
 
-for i in $(seq 1 9)
-do
-align_and_estimate_abundance.pl --seqType fq \
---left /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/remove_overrep/rmoverrep_blacklist_paired_unaligned_PTUR00$i.left.fa \
---right /home/fabianc.salgado/shared/paula_torres/gasteracantha/filter_reads/remove_overrep/rmoverrep_blacklist_paired_unaligned_PTUR00$i.right.fa \
---transcripts /home/fabianc.salgado/shared/paula_torres/gasteracantha/Repeat/run_repeatmasker/rmblast/run_rmblast_2000/trinity_cdhit_2000.fasta.masked \
---est_method RSEM --aln_method bowtie --trinity_mode --prep_reference --output_dir /home/fabianc.salgado/shared/paula_torres/gasteracantha/mapeo/mapeo_2000/PTUR00"$i".RSEM
-done
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Perl/5.34.1
+module load Trinity/2.15.1
+module load Bowtie2/2.4.5
+#module load bioinfo/express/1.5.1
+module load kallisto/0.48.0
+module load RSEM/1.3.3
+module load Salmon/1.5.2
+module load SAMtools/1.16.1
+
+
+#sheck format samples.txt
+# salmon
+/data/gpfs/projects/punim1528/a_minax/scripts/align_and_estimate_abundance.pl --transcripts /data/scratch/projects/punim1528/assembly_300/trinity_cdhit_aminax.fasta --seqType fq --samples_file samples.txt --est_method salmon  --coordsort_bam --trinity_mode --prep_reference --output_dir /data/scratch/projects/punim1528
 ```
