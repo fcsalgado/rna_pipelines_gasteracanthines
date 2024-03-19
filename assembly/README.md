@@ -1,9 +1,8 @@
-
 # Transcriptome Assembly
 
 We will use trinity to assemble the transcriptome
 
-```
+```bash
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
 #SBATCH -n 20 # Número de núcleos
@@ -32,43 +31,12 @@ This is really important, especially because we do not have a reference. We will
 
 This is the classic statistic for assemblies. Because this is de novo assembly and most of the transcripts are small, we want N50 values not too high. Check [here](https://github.com/trinityrnaseq/trinityrnaseq/wiki/Transcriptome-Contig-Nx-and-ExN50-stats) for details
 
-```
+```bash
 module load conda
 source activate /home/fabianc.salgado/data/POCtrinity
 
 /datacnmat01/biologia/biologia.evolutiva/fabianc.salgado/POCtrinity/opt/trinity-2.9.1/util/TrinityStats.pl /home/fabianc.salgado/shared/paula_torres/gasteracantha/trinity/trinity_without_2000/Trinity_2000.fasta
 ```
-
-## Reads representation in the assembly
-
-Ideally, your transcriptome assembly should encompass approximately 80% or more of the input RNA-Seq reads. The unassembled reads that remain are likely associated with transcripts that are expressed at low levels, lacking adequate coverage for assembly, or are of poor quality and abnormal
-
-```
-#!/bin/sh
-#SBATCH -N 1 # Número de nodos
-#SBATCH -n 2 # Número de núcleos
-#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
-#SBATCH -o abundance.out # Salida STDOUT
-#SBATCH -e abundance.err # Salida STDERR
-# mail alert at start, end and abortion of execution
-#SBATCH --mail-type=ALL
-
-# send mail to this address
-#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
-
-module load Bowtie2/2.4.5
-module load SAMtools/1.16.1
-
-#build bowtie database
-#bowtie2-build /data/scratch/projects/punim1528/trinity_output.Trinity.fasta /data/scratch/projects/punim1528/trinity_output/tt.fna
-
-#map reads to database
-cat /data/gpfs/projects/punim1528/a_minax/reads/list_names.txt | while read ind; do
-bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/trinity_output/tt.fna -1 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/"$ind".fq.1.gz -2 /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/"$ind".fq.2.gz 2> align_stats_"$ind".txt | samtools view -@10 -Sb -o bowtie2.bam; done
-```
-
-Check the output of each pair of reads saved in _align_stats_"$ind".txt_
-
 
 ## Run BUSCO
 
@@ -111,23 +79,69 @@ cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trini
 
 **After this repeat the BUSCO analyses to check if the matching improves**
 
+## Reads representation in the assembly
+
+Ideally, your transcriptome assembly should encompass approximately 80% or more of the input RNA-Seq reads. The unassembled reads that remain are likely associated with transcripts that are expressed at low levels, lacking adequate coverage for assembly, or are of poor quality and abnormal
+
+```bash
+#!/bin/sh
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o abundance.out # Salida STDOUT
+#SBATCH -e abundance.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Bowtie2/2.4.5
+module load SAMtools/1.16.1
+
+#build bowtie database
+bowtie2-build /data/scratch/projects/punim1528/assembly_M3_A/trinity_output.Trinity.fasta /data/scratch/projects/punim1528/assembly_M3_A/trans_M3_A.fna
+
+#map reads to database adults
+IFS=$'\n'
+cat /data/scratch/projects/punim1528/cat_ind_reads/samples_A.txt | while read ind; do
+
+f1=$(echo ${ind} |cut -f 3)
+f2=$(echo ${ind} |cut -f 4)
+code=$(echo ${ind} |cut -f 4 | grep -oE "\w+\_\w+\_\w+")
+
+bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/assembly_M3_A/trans_M3_A.fna -1 /data/scratch/projects/punim1528/cat_ind_reads/"$f1" -2 /data/scratch/projects/punim1528/cat_ind_reads/"$f2" 2> /data/scratch/projects/punim1528/assembly_M3_A/align_stats_"$code".txt | samtools view -@10 -Sb -o bowtie2.bam; done
 
 
+#map reads to database m3
+IFS=$'\n'
+cat /data/scratch/projects/punim1528/cat_ind_reads/samples_m3.txt | while read ind; do
 
+f1=$(echo ${ind} |cut -f 3)
+f2=$(echo ${ind} |cut -f 4)
+code=$(echo ${ind} |cut -f 4 | grep -oE "\w+\_\w+\_\w+")
 
-## Quitamos elementos repetitivos (Discuss about this!)
-
-RepeatModeler:
-
+bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/assembly_M3_A/trans_M3_A.fna -1 /data/scratch/projects/punim1528/cat_ind_reads/"$f1" -2 /data/scratch/projects/punim1528/cat_ind_reads/"$f2" 2> /data/scratch/projects/punim1528/assembly_M3_A/align_stats_"$code".txt | samtools view -@10 -Sb -o bowtie2.bam; done
 ```
-module load perl/5.30.3 
 
-perl /home/fabianc.salgado/shared/paula_torres/gasteracantha/Repeat/RepeatModeler/RepeatModeler/RepeatModeler \
--database gasteracantha -engine rmblast -pa 16
-```
-RepeatMasker:
+Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 
-```
-perl /home/fabianc.salgado/shared/paula_torres/gasteracantha/Repeat/RepeatMasker/RepeatMasker \
--pa 16 -gff -lib consensi.fa.classified trinity_cdhit_2000.fasta
+## TransRate
+
+```bash
+#!/bin/sh
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o abundance.out # Salida STDOUT
+#SBATCH -e abundance.err # Salida STDERR
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load Transrate/1.0.3
+
+
 ```
