@@ -129,9 +129,11 @@ Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 ## TransRate
 
 ```bash
+#run script on cluster: 
+
 #!/bin/sh
 #SBATCH -N 1 # Número de nodos
-#SBATCH -n 2 # Número de núcleos
+#SBATCH -n 32 # Número de núcleos
 #SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
 #SBATCH -o abundance.out # Salida STDOUT
 #SBATCH -e abundance.err # Salida STDERR
@@ -141,7 +143,15 @@ Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 # send mail to this address
 #SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
 
+#concatenate right and left reads in a single file
+zcat *1.gz > left_reads.gz
+zcat *2.gz > right_reads.gz
+
 module load Transrate/1.0.3
+
+transrate --assembly /data/scratch/projects/punim1528/assembly_M3_A/trinity_cdhit_aminax_3M_A.fasta --left left_reads.gz --right right_reads.gz --threads 32
+
+rm -f left_reads.gz right_reads.gz 
 
 
 ```
