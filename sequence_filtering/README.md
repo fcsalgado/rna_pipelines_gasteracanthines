@@ -1,6 +1,6 @@
 # Sequence Filtering
 
-Initially, it is necessary to filter the reads as they may contain adapters and other artifacts. The filtering protocol used in this case is based on one published by Harvard, which can be found [aqui](https://github.com/harvardinformatics/TranscriptomeAssemblyTools).
+Initially, it is necessary to filter the reads as they may contain adapters and other artifacts. The filtering protocol used in this case is based on one published by Harvard, which can be found [here](https://github.com/harvardinformatics/TranscriptomeAssemblyTools).
 
 ## Examining Sequence Quality (FastQC)
 The first step with raw reads is to run FastQC to assess the quality of the sequences. On the cluster, it is executed as follows:
