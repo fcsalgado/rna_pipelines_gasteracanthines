@@ -27,6 +27,12 @@ hmmscan --cpu 16 --domtblout /data/scratch/projects/punim1528/assembly_M3_A/codi
 TransDecoder.Predict -t /data/scratch/projects/punim1528/assembly_M3_A/coding_regions/trinity_cdhit_aminax_3M_A.fasta --retain_pfam_hits /data/scratch/projects/punim1528/assembly_M3_A/coding_regions/pfam.domtblout --cpu 16
 
 ```
+## EnTAP
+
+```bash
+~/software/EnTAP-1.0.1/EnTAP --runP -i /scratch4/a_minax/centroids.fasta -d /scratch4/databases/bin/total_invertebrate.dmnd -d /scratch4/databases/bin/uniprot_sprot.dmnd -d /scratch4/databases/bin/uniprot_trembl.dmnd --ini ~/software/EnTAP-1.0.1/entap_config.ini -t 20 --out-dir /scratch4/a_minax-overwrite &
+
+```
 
 ## Remove transcriptome redundancy
 
