@@ -46,10 +46,10 @@ Let's map the reads to the the tracscritome using Salmon
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
 #SBATCH -n 2 # Número de núcleos
-#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)       
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
 #SBATCH -o abundance.out # Salida STDOUT
 #SBATCH -e abundance.err # Salida STDERR
-# mail alert at start, end and abortion of execution  
+# mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
 
 # send mail to this address
@@ -67,5 +67,5 @@ module load SAMtools/1.16.1
 
 #sheck format samples.txt
 # salmon
-/data/gpfs/projects/punim1528/a_minax/scripts/align_and_estimate_abundance.pl --transcripts /data/scratch/projects/punim1528/assembly_300/trinity_cdhit_aminax.fasta --seqType fq --samples_file samples.txt --est_method salmon  --coordsort_bam --trinity_mode --prep_reference --output_dir /data/scratch/projects/punim1528
+/data/gpfs/projects/punim1528/a_minax/scripts/align_and_estimate_abundance.pl --transcripts /data/scratch/projects/punim1528/assembly_M1_M3_A/nonredundant_M1_M3_A.fasta --seqType fq --samples_file /data/scratch/projects/punim1528/cat_ind_reads/all_reads/all_samples.txt --est_method salmon --coordsort_bam --trinity_mode --prep_reference --output_dir /data/scratch/projects/punim1528/cat_ind_reads/salmon_m1_m3_a
 ```
