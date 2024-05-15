@@ -32,19 +32,21 @@ module load BCFtools/1.15.1
 module load SAMtools/1.16.1
 module load STAR/2.7.10b
 
-readarray -t FILES1 < <(cut -f 3 samples_nospace.txt)
-readarray -t FILES2 < <(cut -f 4 samples_nospace.txt)
+# create index
+STAR --runThreadN --runThreadN 15 --runMode genomeGenerate --genomeDir /data/scratch/projects/punim1528/variant_calling_m1_m3_a/star_genome_idx --genomeFastaFiles /data/scratch/projects/punim1528/variant_calling_m1_m3_a/trinity_genes.fasta --genomeSAindexNbases 10 --sjdbGTFfile /data/scratch/projects/punim1528/variant_calling_m1_m3_a/trinity_genes.gtf --sjdbOverhang 150  --limitGenomeGenerateRAM 199117913013
+
+readarray -t FILES1 < <(cut -f 3 cat_ind_reads/salmon_m1_m3_a/all_reads.txt)
+readarray -t FILES2 < <(cut -f 4 cat_ind_reads/salmon_m1_m3_a/all_reads.txt)
 
 # Get the file corresponding to the current task ID
 FILE1=${FILES1[$SLURM_ARRAY_TASK_ID - 1]}
 FILE2=${FILES2[$SLURM_ARRAY_TASK_ID - 1]}
-prefix=$(echo $FILE1 | grep -Eo "\w+\_\w+\_\w+")
-# Uncompress the file
+prefix=$(echo $FILE1 | cut -f 8 -d "/" | grep -Eo "\w+\_\w+\_\w+")
 
-STAR --runThreadN 15 --genomeDir /data/scratch/projects/punim1528/variant_calling/star_genome_idx  --runMode alignReads  --twopassMode Basic  --alignSJDBoverhangMin 12  --outSAMtype BAM SortedByCoordinate  --limitBAMsortRAM 199117913013  --readFilesIn /data/scratch/projects/punim1528/cat_ind_reads/ungzip/$FILE1 /data/scratch/projects/punim1528/cat_ind_reads/ungzip/$FILE2 --outFileNamePrefix /data/scratch/projects/punim1528/variant_calling/BAMs/$prefix
+STAR --runThreadN 15 --genomeDir /data/scratch/projects/punim1528/variant_calling/star_genome_idx  --runMode alignReads  --twopassMode Basic  --alignSJDBoverhangMin 12  --outSAMtype BAM SortedByCoordinate  --limitBAMsortRAM 199117913013  --readFilesIn $FILE1 $FILE2 --outFileNamePrefix /data/scratch/projects/punim1528/variant_calling_m1_m3_a/BAMs/$prefix
 
-samtools index /data/scratch/projects/punim1528/variant_calling/BAMs/${prefix}Aligned.sortedByCoord.out.bam
+samtools index /data/scratch/projects/punim1528/variant_calling_m1_m3_a/BAMs/${prefix}Aligned.sortedByCoord.out.bam
 
-bcftools mpileup -Ou -f /data/scratch/projects/punim1528/assembly_M3_A/trinity_genes.fasta /data/scratch/projects/punim1528/variant_calling/BAMs/${prefix}Aligned.sortedByCoord.out.bam | bcftools call -mv -Ov -o /data/scratch/projects/punim1528/variant_calling/vcfs/$prefix.vcf
+bcftools mpileup -Ou -f /data/scratch/projects/punim1528/variant_calling_m1_m3_a/trinity_genes.fasta /data/scratch/projects/punim1528/variant_calling_m1_m3_a/BAMs/${prefix}Aligned.sortedByCoord.out.bam | bcftools call -mv -Ov -o /data/scratch/projects/punim1528/variant_calling_m1_m3_a/vcfs/$prefix.vcf
 ```
 
