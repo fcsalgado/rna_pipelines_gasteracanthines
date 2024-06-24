@@ -11,7 +11,7 @@ module load Salmon/1.5.2
 /data/gpfs/projects/punim1528/a_minax/scripts/trinityrnaseq/Analysis/SuperTranscripts/Trinity_gene_splice_modeler.py --trinity_fasta centroids.fasta
 ```
 
-## obtain multiple BAMs
+## obtain multiple BAMs and VCF files
 
 ```bash
 #!/bin/bash
@@ -49,4 +49,45 @@ samtools index /data/scratch/projects/punim1528/variant_calling_m1_m3_a/BAMs/${p
 
 bcftools mpileup -Ou -f /data/scratch/projects/punim1528/variant_calling_m1_m3_a/trinity_genes.fasta /data/scratch/projects/punim1528/variant_calling_m1_m3_a/BAMs/${prefix}Aligned.sortedByCoord.out.bam | bcftools call -mv -Ov -o /data/scratch/projects/punim1528/variant_calling_m1_m3_a/vcfs/$prefix.vcf
 ```
+
+## Merge VCF files
+
+```bash
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 2 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)
+#SBATCH -o abundance.out # Salida STDOUT
+#SBATCH -e abundance.err # Salida STDERR
+#SBATCH --mem=50G
+# mail alert at start, end and abortion of execution
+#SBATCH --mail-type=ALL
+
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load BCFtools/1.15.1
+# Directory containing the VCF files
+vcf_dir="path/to/vcf_files"
+
+# Output merged VCF file
+merged_vcf="merged_samples.vcf"
+
+# Create an array to hold the file paths
+vcf_files=()
+
+# Loop over all VCF files in the directory
+for vcf in "$vcf_dir"/*.vcf; do
+  # Index each VCF file
+  bcftools index "$vcf"
+  # Add the file path to the array
+  vcf_files+=("$vcf")
+done
+
+# Merge the VCF files
+bcftools merge -o "$merged_vcf" -O z "${vcf_files[@]}"
+
+gzip merged_samples.vcf
+```
+
 
