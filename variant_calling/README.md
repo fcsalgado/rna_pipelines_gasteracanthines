@@ -91,8 +91,6 @@ done
 # Merge the VCF files
 bcftools merge -o "$merged_vcf" -O z "${vcf_files[@]}"
 
-gzip merged_samples.vcf
-
 ```
 
 
