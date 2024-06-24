@@ -67,8 +67,9 @@ bcftools mpileup -Ou -f /data/scratch/projects/punim1528/variant_calling_m1_m3_a
 #SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
 
 module load BCFtools/1.15.1
+
 # Directory containing the VCF files
-vcf_dir="path/to/vcf_files"
+vcf_dir="/data/scratch/projects/punim1528/variant_calling_m1_m3_a/vcfs"
 
 # Output merged VCF file
 merged_vcf="merged_samples.vcf"
@@ -78,6 +79,9 @@ vcf_files=()
 
 # Loop over all VCF files in the directory
 for vcf in "$vcf_dir"/*.vcf; do
+  #compress 
+  bgzip "$vcf"
+  vcf="${vcf}.gz"
   # Index each VCF file
   bcftools index "$vcf"
   # Add the file path to the array
@@ -88,6 +92,7 @@ done
 bcftools merge -o "$merged_vcf" -O z "${vcf_files[@]}"
 
 gzip merged_samples.vcf
+
 ```
 
 
