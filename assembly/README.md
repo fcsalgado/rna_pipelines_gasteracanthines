@@ -1,7 +1,8 @@
 # Transcriptome Assembly
 
-We will use trinity to assemble the transcriptome
+To assemble a de novo transcriptome for the Christmas spider, we used two different de novo transcriptome assembly algorithms with all the sequences and default parameters: Trinity v2.15.1 (Grabherr et al., 2011), which uses a k-mer size of 25, and rnaSPAdes v3.15.5 (Bushmanova et al., 2019) with selected k-mer sizes of 49 and 73. 
 
+## Trinity Assembly
 ```bash
 #!/bin/bash
 #SBATCH -N 1 # Número de nodos
@@ -22,6 +23,37 @@ module load Salmon/1.5.2
 
 Trinity --seqType fq --SS_lib_type RF --max_memory 50G --CPU 20 --min_contig_length 300 --left /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/*.1.gz  --right /data/gpfs/projects/punim1528/a_minax/reads/filtered_reads/clean_ready_to_assemble/*.2.gz --output /data/scratch/projects/punim1528/trinity_output --full_cleanup
 ```
+
+## rnaSPAdes
+```bash
+#!/bin/bash
+#SBATCH -N 1 # Número de nodos
+#SBATCH -n 20 # Número de núcleos
+#SBATCH -t 4-23:00 # Límite de tiempo (D-HH:MM)       
+#SBATCH -o spades.out # Salida STDOUT
+#SBATCH -e spades.err # Salida STDERR
+#SBATCH --mem=200G
+# mail alert at start, end and abortion of execution  
+#SBATCH --mail-type=ALL
+# send mail to this address
+#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
+
+module load SPAdes/3.15.5
+
+rnaspades.py -t 20 --dataset  /data/scratch/projects/punim1528/config.yaml -o /data/scratch/projects/punim1528/spades_aligment
+```
+
+## Evigene
+```bash
+/home/fcsalgado/software/evigene/scripts/rnaseq/trformat.pl -out /scratch4/a_minax/transcriptomes_evigene/trinity.transcripts.fasta -log -in /scratch4/a_minax/assembly_M1_M3_A/trinity_M1_M3_A.Trinity.fasta
+
+/home/fcsalgado/software/evigene/scripts/rnaseq/trformat.pl -out /scratch4/a_minax/transcriptomes_evigene/spades.transcripts.fasta -log -in /scratch4/a_minax/spades/transcripts.fasta
+
+cat /scratch4/a_minax/transcriptomes_evigene/*.fasta > /scratch4/a_minax/transcriptomes_evigene/transcript_joint.fa
+
+cd /scratch4/a_minax/transcriptomes_evigene/
+```
+
 
 # Transcriptome Assembly Quality Assessment
 
