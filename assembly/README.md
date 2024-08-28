@@ -99,16 +99,6 @@ busco --in /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.
 
 Most of your assembly (>80%) needs to match the database. There is a high probability that you ended up with a high number of duplicates. This may be because, for instance, a high level of duplication may be explained by a recent whole duplication event (biological) or a chimeric assembly of haplotypes. Let's discard the technical part and remove the redundant transcripts.
 
-## CDHIT
-
-Remove redundant transcripts with [CD-HIT](https://sites.google.com/view/cd-hit)
-
-```
-module load CD-HIT/4.8.1
-
-cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.fasta -o /data/scratch/projects/punim1528/trinity_cdhit_aminax -c 0.95 -M 32000 -T 16
-```
-
 **After this repeat the BUSCO analyses to check if the matching improves**
 
 ## Reads representation in the assembly
@@ -158,32 +148,14 @@ bowtie2 -p 10 -q --no-unal -k 20 -x /data/scratch/projects/punim1528/assembly_M3
 
 Check the output of each pair of reads saved in _align_stats_"$ind".txt_
 
-## TransRate
+## CDHIT
 
-```bash
-#run script on cluster: 
-
-#!/bin/sh
-#SBATCH -N 1 # Número de nodos
-#SBATCH -n 32 # Número de núcleos
-#SBATCH -t 5-23:00 # Límite de tiempo (D-HH:MM)
-#SBATCH -o abundance.out # Salida STDOUT
-#SBATCH -e abundance.err # Salida STDERR
-# mail alert at start, end and abortion of execution
-#SBATCH --mail-type=ALL
-
-# send mail to this address
-#SBATCH --mail-user=fsalgadoroa@student.unimelb.edu.au
-
-#concatenate right and left reads in a single file
-zcat *1.gz > left_reads.gz
-zcat *2.gz > right_reads.gz
-
-module load Transrate/1.0.3
-
-transrate --assembly /data/scratch/projects/punim1528/assembly_M3_A/trinity_cdhit_aminax_3M_A.fasta --left left_reads.gz --right right_reads.gz --threads 32
-
-rm -f left_reads.gz right_reads.gz 
-
+Remove redundant transcripts with [CD-HIT](https://sites.google.com/view/cd-hit)
 
 ```
+module load CD-HIT/4.8.1
+
+cd-hit-est -i /data/scratch/projects/punim1528/assembly_300/trinity_output.Trinity.fasta -o /data/scratch/projects/punim1528/trinity_cdhit_aminax -c 0.95 -M 32000 -T 16
+```
+
+
